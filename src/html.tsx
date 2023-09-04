@@ -25,9 +25,15 @@ const relevantProperties = [
   "touchAction",
 ] as const;
 
+export type SelectorEvent = {
+    event: keyof HTMLElementEventMap;
+    handler: () => void;
+};
+
 export type HtmlProps = PropsWithChildren<{
   inheritListen?: boolean;
   selectors?: string | string[];
+  selectorEvents?: SelectorEvent[];
   groupProps?: Konva.ContainerConfig;
   divProps?: HTMLAttributes<HTMLDivElement>;
   transform?: boolean;
@@ -46,6 +52,7 @@ export const Html = ({
   children,
   inheritListen,
   selectors,
+  selectorEvents,
   groupProps,
   divProps,
   transform,
@@ -79,6 +86,12 @@ export const Html = ({
     div.querySelectorAll(selector).forEach((el: HTMLElement) => {
       relevantProperties.forEach((property) => {
         el.style[property] = "none";
+        
+        if (selectorEvents) {
+            selectorEvents.forEach((selectorEvent) => {
+                el.addEventListener(selectorEvent.event, selectorEvent.handler);
+            });
+        }
       });
     });
   }, [selector]);
